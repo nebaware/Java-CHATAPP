@@ -1,3 +1,7 @@
+/**
+ * Jebena-chatapp - Enhanced GUI Client
+ * A professional multi-client chat application with real-time messaging
+ */
 import com.formdev.flatlaf.FlatDarkLaf;
 import javax.swing.*;
 import javax.swing.text.*;
@@ -16,7 +20,7 @@ public class ChatClient extends JFrame {
     public ChatClient() {
         if (!authenticate()) System.exit(0);
 
-        setTitle("Real-time Chat: " + username);
+        setTitle("Jebena-chatapp: " + username);
         setSize(800, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -39,9 +43,9 @@ public class ChatClient extends JFrame {
     }
 
     private boolean authenticate() {
-        // Standard Login Dialog
-        String user = JOptionPane.showInputDialog("Username:");
-        String pass = JOptionPane.showInputDialog("Password:");
+        // Jebena-chatapp Login Dialog
+        String user = JOptionPane.showInputDialog("Jebena-chatapp - Username:");
+        String pass = JOptionPane.showInputDialog("Jebena-chatapp - Password:");
         try {
             Socket s = new Socket("localhost", 12345);
             out = new PrintWriter(s.getOutputStream(), true);
@@ -68,7 +72,7 @@ public class ChatClient extends JFrame {
                     appendStyled(msg);
                 }
             }
-        } catch (IOException e) { appendStyled("SYSTEM: Connection lost."); }
+        } catch (IOException e) { appendStyled("SYSTEM: Jebena-chatapp connection lost."); }
     }
 
     private void updateList(String users) {

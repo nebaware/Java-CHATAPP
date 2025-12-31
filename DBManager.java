@@ -1,3 +1,7 @@
+/**
+ * Jebena-chatapp - Database Manager
+ * Handles all database operations for user authentication and message storage
+ */
 import java.sql.*;
 import java.util.*;
 

@@ -1,6 +1,6 @@
-# Java Advanced Chat Application
+# Jebena-chatapp - Advanced Java Chat Application
 
-A professional multi-client chat application with enhanced GUI interfaces, bidirectional server-client communication, user authentication, and comprehensive server management.
+A professional multi-client chat application (Jebena-chatapp) with enhanced GUI interfaces, bidirectional server-client communication, user authentication, and comprehensive server management.
 
 ## 🚀 Key Features
 
@@ -145,7 +145,7 @@ java -cp ".;flatlaf-3.7.jar;mysql-connector-j-9.5.0.jar" DiagnosticTool
 ## 📁 Project Structure
 
 ```
-Java_chatApp/
+Jebena-chatapp/
 ├── ChatClient.java             # Enhanced GUI client application  
 ├── ChatServerGUI.java          # GUI server with management interface
 ├── DBManager.java              # Database connection manager

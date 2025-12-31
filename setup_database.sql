@@ -1,4 +1,4 @@
--- Database setup for Chat Application
+-- Database setup for Jebena-chatapp
 CREATE DATABASE IF NOT EXISTS chat_db;
 USE chat_db;
 

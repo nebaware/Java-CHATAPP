@@ -1,8 +1,12 @@
+/**
+ * Jebena-chatapp - Diagnostic Tool
+ * System diagnostic utility to verify database connectivity and configuration
+ */
 import java.sql.Connection;
 
 public class DiagnosticTool {
     public static void main(String[] args) {
-        System.out.println("--- Chat App Diagnostic ---");
+        System.out.println("--- Jebena-chatapp Diagnostic ---");
         try {
             Connection conn = DBManager.getConnection();
             if (conn != null) {

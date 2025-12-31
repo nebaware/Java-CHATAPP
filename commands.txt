@@ -1,4 +1,4 @@
-# Advanced Chat Application - REAL-TIME MESSAGING FIXED
+# Jebena-chatapp - REAL-TIME MESSAGING FIXED
 
 ## Prerequisites
 1. Java JDK 8 or higher installed

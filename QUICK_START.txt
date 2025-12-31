@@ -1,4 +1,4 @@
-QUICK START GUIDE - Real-Time Chat Application (FIXED)
+QUICK START GUIDE - Jebena-chatapp Real-Time Chat (FIXED)
 =======================================================
 
 🚀 FASTEST WAY TO GET STARTED:

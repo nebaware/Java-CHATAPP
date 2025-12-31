@@ -1,3 +1,7 @@
+/**
+ * Jebena-chatapp - Server GUI with Management Interface
+ * Professional server control panel with real-time monitoring and user management
+ */
 import com.formdev.flatlaf.FlatDarkLaf;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -36,7 +40,7 @@ public class ChatServerGUI extends JFrame {
     }
     
     private void initializeGUI() {
-        setTitle("Advanced Chat Server - Control Panel");
+        setTitle("Jebena-chatapp Server - Control Panel");
         setSize(1000, 700);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -48,8 +52,8 @@ public class ChatServerGUI extends JFrame {
                 if (serverRunning) {
                     int option = JOptionPane.showConfirmDialog(
                         ChatServerGUI.this,
-                        "Server is still running. Do you want to stop it and exit?",
-                        "Confirm Exit",
+                        "Jebena-chatapp Server is still running. Do you want to stop it and exit?",
+                        "Confirm Exit - Jebena-chatapp",
                         JOptionPane.YES_NO_OPTION
                     );
                     if (option == JOptionPane.YES_OPTION) {
@@ -237,7 +241,7 @@ public class ChatServerGUI extends JFrame {
             broadcastButton.setEnabled(true);
             statusLabel.setText("Server Status: Running on port 12345");
             
-            logMessage("Server started successfully on port 12345");
+            logMessage("Jebena-chatapp server started successfully on port 12345");
             
             // Start accepting clients in a separate thread
             new Thread(() -> {
@@ -257,7 +261,7 @@ public class ChatServerGUI extends JFrame {
         } catch (IOException e) {
             logMessage("Failed to start server: " + e.getMessage());
             JOptionPane.showMessageDialog(this, "Failed to start server: " + e.getMessage(), 
-                                        "Server Error", JOptionPane.ERROR_MESSAGE);
+                                        "Jebena-chatapp Server Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     

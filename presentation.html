@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Jebena (ጀበና) - Group 10 Presentation</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/dracula.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --coffee-dark: #2c1b0e;
+            --coffee-medium: #4e342e;
+            --gold: #d4af37;
+            --ethiopian-red: #da291c;
+            --ethiopian-green: #009b3a;
+        }
+        .reveal { background: linear-gradient(135deg, #121212 0%, #2c1b0e 100%); }
+        .reveal h1, .reveal h2, .reveal h3 { color: var(--gold); text-transform: none; font-family: 'Segoe UI', sans-serif; }
+        .reveal .slides section { text-align: left; }
+        .reveal .slides section.center { text-align: center; }
+        
+        /* Custom Boxes */
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .feature-card { 
+            background: rgba(255,255,255,0.05); 
+            padding: 15px; 
+            border-radius: 10px; 
+            border-left: 5px solid var(--gold); 
+            font-size: 0.7em;
+        }
+        .feature-card i { color: var(--gold); margin-right: 10px; font-size: 1.2em; }
+        
+        .stat-bar { background: var(--gold); color: black; padding: 5px 15px; border-radius: 5px; font-weight: bold; display: inline-block; margin-bottom: 10px; }
+        .team-list { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; font-size: 0.6em; }
+        .member-tag { background: #333; padding: 10px; border-radius: 5px; border-bottom: 3px solid var(--ethiopian-green); text-align: center; }
+        
+        .protocol-tag { color: #50fa7b; font-family: monospace; }
+        .trouble-table { font-size: 0.5em !important; width: 100%; border-collapse: collapse; }
+        .trouble-table th { background: var(--gold); color: black; }
+        .trouble-table td, .trouble-table th { border: 1px solid #444; padding: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <!-- SLIDE 1: INTRO -->
+        <section class="center" data-transition="zoom">
+            <h3 style="color:white; letter-spacing: 5px;">PROJECT</h3>
+            <h1>ጀበና (Jebena) <span style="font-size: 0.5em; vertical-align: middle;">ChatApp</span></h1>
+            <p>Advanced Multi-Client Communication & Management System</p>
+            <div style="margin-top: 40px;">
+                <span class="stat-bar"><i class="fas fa-users"></i> Group 10</span>
+                <span class="stat-bar"><i class="fas fa-code"></i> Java Advanced</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: THE TEAM -->
+        <section>
+            <h2>Meet the Engineers</h2>
+            <div class="team-list">
+                <div class="member-tag">Mahlet Fekadewold</div>
+                <div class="member-tag">Nebiyu Tsegaye</div>
+                <div class="member-tag">Muluken Ugamo</div>
+                <div class="member-tag">Suber Sulub</div>
+                <div class="member-tag">Habtamu Inka</div>
+                <div class="member-tag">Yishak Tule</div>
+            </div>
+            <p style="font-size: 0.6em; margin-top: 20px; color: #888;">Collaboratively designed to bring traditional Ethiopian gathering (Jebena) to the digital age.</p>
+        </section>
+
+        <!-- SLIDE 3: CORE CAPABILITIES -->
+        <section>
+            <h2>🚀 Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card fragment">
+                    <i class="fas fa-exchange-alt"></i>
+                    <strong>Bidirectional Sync</strong><br>Full Server-to-Client & Client-to-Server flow.
+                </div>
+                <div class="feature-card fragment">
+                    <i class="fas fa-database"></i>
+                    <strong>MySQL 9.5 Persistence</strong><br>Secure login & rolling history (Last 50 messages).
+                </div>
+                <div class="feature-card fragment">
+                    <i class="fas fa-user-shield"></i>
+                    <strong>Auth System</strong><br>Registration & validation connected to Port 33061.
+                </div>
+                <div class="feature-card fragment">
+                    <i class="fas fa-bell"></i>
+                    <strong>Smart UI</strong><br>Emoji support, sound alerts, and popup notifications.
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: SERVER ADMINISTRATION -->
+        <section>
+            <section>
+                <h2>🛡️ Server Control Panel</h2>
+                <p>Jebena-chatapp isn't just a chat; it's a managed environment.</p>
+                <div class="feature-card">
+                    <strong>Real-time Monitoring:</strong> Live view of all traffic & user activity logs.
+                </div>
+                <div class="feature-card">
+                    <strong>User Management:</strong> Admins can select any user to <strong>Kick</strong>, <strong>Message</strong>, or <strong>Broadcast</strong>.
+                </div>
+                <p><small>Press <i class="fas fa-arrow-down"></i> for Admin protocols</small></p>
+            </section>
+            <section>
+                <h3>Admin Protocols</h3>
+                <ul>
+                    <li class="fragment"><code>SERVER MESSAGE:</code> Triggers a popup on the client side.</li>
+                    <li class="fragment"><code>SERVER ANNOUNCEMENT:</code> Color-coded global broadcast.</li>
+                    <li class="fragment"><code>KICKED:</code> Graceful disconnection of specific sockets.</li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- SLIDE 5: ARCHITECTURE -->
+        <section>
+            <h2>🏗️ System Architecture</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4 style="color:var(--gold)">Frontend</h4>
+                    <ul>
+                        <li>FlatLaf 3.7 (Modern Dark)</li>
+                        <li>JTextPane (Styled)</li>
+                        <li>Emoji Integration</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4 style="color:var(--gold)">Backend</h4>
+                    <ul>
+                        <li>Java JDK 8+ Sockets</li>
+                        <li>Multi-threaded Handlers</li>
+                        <li>MySQL 9.5 Connector</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: DATABASE DESIGN -->
+        <section>
+            <h2>🗄️ Database Setup</h2>
+            <p>Reliable persistence on Port <span class="protocol-tag">33061</span></p>
+            <pre><code class="sql" style="font-size: 0.6em; line-height: 1.2;">
+-- Tables: users & messages
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE,
+    password VARCHAR(255)
+);
+
+CREATE TABLE messages (
+    sender VARCHAR(50),
+    content TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+            </code></pre>
+            <p style="font-size: 0.5em;">Credentials: <code>User: root | Pass: Admin123</code></p>
+        </section>
+
+        <!-- SLIDE 7: COMMANDS & PROTOCOLS -->
+        <section>
+            <h2>💬 Available Commands</h2>
+            <div class="feature-card">
+                <p><span class="protocol-tag">/pm [user] [msg]</span> - Send private messages (Cyan coded).</p>
+            </div>
+            <div class="feature-card">
+                <p><span class="protocol-tag">/users</span> - Live update of online participants.</p>
+            </div>
+            <div class="feature-card">
+                <p><span class="protocol-tag">/time</span> - Sync client time with Server clock.</p>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: TROUBLESHOOTING -->
+        <section>
+            <h2>🔧 Maintenance & Diagnostics</h2>
+            <table class="trouble-table">
+                <thead>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Professional Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Connection Error</td>
+                        <td>Run <code>DiagnosticTool.java</code> to check Port 33061 status.</td>
+                    </tr>
+                    <tr>
+                        <td>Auth Failure</td>
+                        <td>Ensure MySQL 9.5 service is running with <code>Admin123</code> credentials.</td>
+                    </tr>
+                    <tr>
+                        <td>Server GUI won't start</td>
+                        <td>Check if Port 12345 is already bound by another process.</td>
+                    </tr>
+                    <tr>
+                        <td>UI is lagging</td>
+                        <td>Ensure <code>SwingUtilities.invokeLater</code> is used for UI updates.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SLIDE 9: CONCLUSION -->
+        <section class="center">
+            <h1>ጀበና (Jebena)</h1>
+            <p>The perfect blend of Java programming and communication.</p>
+            <h2 style="color:white; margin-top: 50px;">Thank You!</h2>
+            <p><small>Mahlet | Nebiyu | Muluken | Suber | Habtamu | Yishak</small></p>
+            <p style="font-size: 0.4em; color: #555;">© 2025 Group 10 | Hawassa University (?) Advanced Java Project</p>
+        </section>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/plugin/markdown/markdown.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/plugin/highlight/highlight.js"></script>
+
+<script>
+    Reveal.initialize({
+        hash: true,
+        center: true,
+        controls: true,
+        progress: true,
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+        plugins: [ RevealHighlight, RevealNotes ]
+    });
+</script>
+
+</body>
+</html>
