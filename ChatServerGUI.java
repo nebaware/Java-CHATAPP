@@ -45,7 +45,7 @@ public class ChatServerGUI extends JFrame {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
         
-        // Add window closing handler
+        // Window closing handler
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
@@ -66,7 +66,7 @@ public class ChatServerGUI extends JFrame {
             }
         });
         
-        // Create main tabbed pane
+        // Create tabbed interface
         JTabbedPane tabbedPane = new JTabbedPane();
         
         // Server Control Tab
@@ -115,16 +115,17 @@ public class ChatServerGUI extends JFrame {
         
         gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.WEST;
         configPanel.add(new JLabel("Port:"), gbc);
-        gbc.gridx = 1;
-        JTextField portField = new JTextField("12345", 10);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        JTextField portField = new JTextField("12345");
         portField.setEditable(false);
         configPanel.add(portField, gbc);
         
-        gbc.gridx = 0; gbc.gridy = 1;
-        configPanel.add(new JLabel("Max Clients:"), gbc);
-        gbc.gridx = 1;
-        JTextField maxClientsField = new JTextField("50", 10);
-        configPanel.add(maxClientsField, gbc);
+        gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        configPanel.add(new JLabel("Database:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        JTextField dbField = new JTextField("chat_db (MySQL 9.5)");
+        dbField.setEditable(false);
+        configPanel.add(dbField, gbc);
         
         panel.add(configPanel, BorderLayout.CENTER);
         
@@ -134,12 +135,12 @@ public class ChatServerGUI extends JFrame {
         broadcastField = new JTextField();
         broadcastButton = new JButton("Broadcast");
         broadcastButton.setEnabled(false);
-        broadcastButton.addActionListener(e -> sendBroadcast());
-        broadcastField.addActionListener(e -> sendBroadcast());
+        broadcastButton.addActionListener(e -> broadcastMessage());
         
-        broadcastPanel.add(new JLabel("Message: "), BorderLayout.WEST);
-        broadcastPanel.add(broadcastField, BorderLayout.CENTER);
-        broadcastPanel.add(broadcastButton, BorderLayout.EAST);
+        JPanel broadcastInputPanel = new JPanel(new BorderLayout());
+        broadcastInputPanel.add(broadcastField, BorderLayout.CENTER);
+        broadcastInputPanel.add(broadcastButton, BorderLayout.EAST);
+        broadcastPanel.add(broadcastInputPanel, BorderLayout.NORTH);
         
         panel.add(broadcastPanel, BorderLayout.SOUTH);
         
@@ -151,22 +152,25 @@ public class ChatServerGUI extends JFrame {
         
         chatMonitorArea = new JTextArea();
         chatMonitorArea.setEditable(false);
+        chatMonitorArea.setBackground(new Color(40, 44, 52));
+        chatMonitorArea.setForeground(Color.CYAN);
         chatMonitorArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        
         JScrollPane scrollPane = new JScrollPane(chatMonitorArea);
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Live Chat Monitor"));
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Live Chat Monitor - God View"));
         
         panel.add(scrollPane, BorderLayout.CENTER);
         
-        // Control buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton clearChatButton = new JButton("Clear Monitor");
-        clearChatButton.addActionListener(e -> chatMonitorArea.setText(""));
+        // Monitor controls
+        JPanel controlPanel = new JPanel(new FlowLayout());
+        JButton clearMonitorButton = new JButton("Clear Monitor");
+        clearMonitorButton.addActionListener(e -> chatMonitorArea.setText(""));
+        controlPanel.add(clearMonitorButton);
         
-        JCheckBox autoScrollCheckBox = new JCheckBox("Auto Scroll", true);
+        JCheckBox autoScrollCheckBox = new JCheckBox("Auto-scroll", true);
+        controlPanel.add(autoScrollCheckBox);
         
-        buttonPanel.add(clearChatButton);
-        buttonPanel.add(autoScrollCheckBox);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
+        panel.add(controlPanel, BorderLayout.SOUTH);
         
         return panel;
     }
@@ -175,7 +179,7 @@ public class ChatServerGUI extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         
         // User table
-        String[] columnNames = {"Username", "IP Address", "Connected Since", "Messages Sent"};
+        String[] columnNames = {"Username", "IP Address", "Connection Time", "Status"};
         userTableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -185,27 +189,37 @@ public class ChatServerGUI extends JFrame {
         
         userTable = new JTable(userTableModel);
         userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        userTable.getTableHeader().setReorderingAllowed(false);
+        
         JScrollPane tableScrollPane = new JScrollPane(userTable);
         tableScrollPane.setBorder(BorderFactory.createTitledBorder("Connected Users"));
-        
         panel.add(tableScrollPane, BorderLayout.CENTER);
         
         // User management buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton kickUserButton = new JButton("Kick User");
-        JButton refreshButton = new JButton("Refresh");
-        JButton messageUserButton = new JButton("Message User");
-        JButton messageAllButton = new JButton("Message All Users");
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 3, 5, 5));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
+        JButton messageUserButton = new JButton("Message User");
+        JButton kickUserButton = new JButton("Kick User");
+        JButton refreshButton = new JButton("Refresh List");
+        JButton messageAllButton = new JButton("Message All Users");
+        JButton viewUserInfoButton = new JButton("View User Info");
+        JButton banUserButton = new JButton("Ban User (Future)");
+        
+        messageUserButton.addActionListener(e -> messageSelectedUser());
         kickUserButton.addActionListener(e -> kickSelectedUser());
         refreshButton.addActionListener(e -> refreshUserTable());
-        messageUserButton.addActionListener(e -> messageSelectedUser());
         messageAllButton.addActionListener(e -> messageAllUsers());
+        viewUserInfoButton.addActionListener(e -> viewSelectedUserInfo());
+        banUserButton.setEnabled(false); // Future feature
         
+        buttonPanel.add(messageUserButton);
         buttonPanel.add(kickUserButton);
         buttonPanel.add(refreshButton);
-        buttonPanel.add(messageUserButton);
         buttonPanel.add(messageAllButton);
+        buttonPanel.add(viewUserInfoButton);
+        buttonPanel.add(banUserButton);
+        
         panel.add(buttonPanel, BorderLayout.SOUTH);
         
         return panel;
@@ -272,18 +286,20 @@ public class ChatServerGUI extends JFrame {
                 serverSocket.close();
             }
             
-            // Disconnect all clients gracefully
+            // Disconnect all clients
             synchronized (clientWriters) {
                 for (PrintWriter writer : clientWriters) {
-                    try {
-                        writer.println("SERVER_SHUTDOWN");
-                        writer.close();
-                    } catch (Exception e) {
-                        // Ignore individual client errors during shutdown
-                    }
+                    writer.println("SERVER_SHUTDOWN");
+                    writer.close();
                 }
                 clientWriters.clear();
+            }
+            
+            synchronized (userWriters) {
                 userWriters.clear();
+            }
+            
+            synchronized (activeUsers) {
                 activeUsers.clear();
             }
             
@@ -292,60 +308,45 @@ public class ChatServerGUI extends JFrame {
             statusLabel.setText("Server Status: Stopped");
             userCountLabel.setText("Connected Users: 0");
             
+            // Clear user table
+            SwingUtilities.invokeLater(() -> {
+                userTableModel.setRowCount(0);
+            });
+            
             logMessage("Server stopped successfully");
-            SwingUtilities.invokeLater(() -> refreshUserTable());
             
         } catch (IOException e) {
             logMessage("Error stopping server: " + e.getMessage());
         }
     }
     
-    private void sendBroadcast() {
+    private void broadcastMessage() {
         String message = broadcastField.getText().trim();
         if (!message.isEmpty()) {
-            broadcast("SERVER ANNOUNCEMENT: " + message);
-            logMessage("Broadcast sent: " + message);
-            logChatMessage("[BROADCAST] SERVER: " + message);
+            String serverAnnouncement = "🔔 SERVER ANNOUNCEMENT: " + message;
+            broadcastToAll(serverAnnouncement);
+            logMessage("[BROADCAST] " + message);
+            chatMonitorArea.append("[" + getCurrentTime() + "] [BROADCAST] " + message + "\n");
             broadcastField.setText("");
-        }
-    }
-    
-    private void kickSelectedUser() {
-        int selectedRow = userTable.getSelectedRow();
-        if (selectedRow >= 0) {
-            String username = (String) userTableModel.getValueAt(selectedRow, 0);
-            PrintWriter userWriter = userWriters.get(username);
-            if (userWriter != null) {
-                userWriter.println("KICKED: You have been kicked from the server");
-                userWriter.close();
-                logMessage("User kicked: " + username);
-            }
         }
     }
     
     private void messageSelectedUser() {
         int selectedRow = userTable.getSelectedRow();
-        if (selectedRow >= 0) {
+        if (selectedRow != -1) {
             String username = (String) userTableModel.getValueAt(selectedRow, 0);
             
-            // Create a more comprehensive message dialog
+            // Create message dialog
             JDialog messageDialog = new JDialog(this, "Send Message to " + username, true);
-            messageDialog.setSize(400, 250);
+            messageDialog.setSize(400, 200);
             messageDialog.setLocationRelativeTo(this);
             
             JPanel panel = new JPanel(new BorderLayout());
             
-            // Message input area
-            JTextArea messageArea = new JTextArea(5, 30);
-            messageArea.setLineWrap(true);
-            messageArea.setWrapStyleWord(true);
-            messageArea.setBorder(BorderFactory.createLoweredBevelBorder());
-            JScrollPane scrollPane = new JScrollPane(messageArea);
-            
             // Message type selection
             JPanel typePanel = new JPanel(new FlowLayout());
             JRadioButton privateMsg = new JRadioButton("Private Message", true);
-            JRadioButton serverMsg = new JRadioButton("Server Message");
+            JRadioButton serverMsg = new JRadioButton("Server Message (Popup)");
             JRadioButton announcement = new JRadioButton("Server Announcement");
             
             ButtonGroup group = new ButtonGroup();
@@ -353,37 +354,39 @@ public class ChatServerGUI extends JFrame {
             group.add(serverMsg);
             group.add(announcement);
             
-            typePanel.add(new JLabel("Type: "));
             typePanel.add(privateMsg);
             typePanel.add(serverMsg);
             typePanel.add(announcement);
+            panel.add(typePanel, BorderLayout.NORTH);
+            
+            // Message input
+            JTextArea messageArea = new JTextArea(5, 30);
+            messageArea.setLineWrap(true);
+            messageArea.setWrapStyleWord(true);
+            panel.add(new JScrollPane(messageArea), BorderLayout.CENTER);
             
             // Buttons
             JPanel buttonPanel = new JPanel(new FlowLayout());
-            JButton sendBtn = new JButton("Send");
-            JButton cancelBtn = new JButton("Cancel");
+            JButton sendButton = new JButton("Send");
+            JButton cancelButton = new JButton("Cancel");
             
-            sendBtn.addActionListener(e -> {
+            JLabel statusLabel = new JLabel(" ");
+            
+            sendButton.addActionListener(e -> {
                 String message = messageArea.getText().trim();
                 if (!message.isEmpty()) {
                     PrintWriter userWriter = userWriters.get(username);
                     if (userWriter != null) {
-                        String formattedMessage;
                         if (privateMsg.isSelected()) {
-                            formattedMessage = "[PM from SERVER]: " + message;
+                            userWriter.println("[PM from Server]: " + message);
                         } else if (serverMsg.isSelected()) {
-                            formattedMessage = "SERVER MESSAGE: " + message;
+                            userWriter.println("🔔 SERVER MESSAGE: " + message);
                         } else {
-                            formattedMessage = "SERVER ANNOUNCEMENT: " + message;
+                            userWriter.println("🔔 SERVER ANNOUNCEMENT: " + message);
                         }
                         
-                        userWriter.println(formattedMessage);
-                        userWriter.flush();
-                        
-                        logMessage("Message sent to " + username + ": " + message);
-                        logChatMessage("[SERVER -> " + username + "] " + message);
-                        
-                        // Show confirmation
+                        logMessage("[SERVER -> " + username + "] " + message);
+                        chatMonitorArea.append("[" + getCurrentTime() + "] [SERVER -> " + username + "] " + message + "\n");
                         statusLabel.setText("Message sent to " + username);
                     } else {
                         JOptionPane.showMessageDialog(messageDialog, 
@@ -391,21 +394,14 @@ public class ChatServerGUI extends JFrame {
                             "User Offline", JOptionPane.WARNING_MESSAGE);
                     }
                 }
-                messageDialog.dispose();
             });
             
-            cancelBtn.addActionListener(e -> messageDialog.dispose());
+            cancelButton.addActionListener(e -> messageDialog.dispose());
             
-            buttonPanel.add(sendBtn);
-            buttonPanel.add(cancelBtn);
-            
-            panel.add(new JLabel("Message to " + username + ":"), BorderLayout.NORTH);
-            panel.add(scrollPane, BorderLayout.CENTER);
-            
-            JPanel southPanel = new JPanel(new BorderLayout());
-            southPanel.add(typePanel, BorderLayout.NORTH);
-            southPanel.add(buttonPanel, BorderLayout.SOUTH);
-            panel.add(southPanel, BorderLayout.SOUTH);
+            buttonPanel.add(sendButton);
+            buttonPanel.add(cancelButton);
+            buttonPanel.add(statusLabel);
+            panel.add(buttonPanel, BorderLayout.SOUTH);
             
             messageDialog.add(panel);
             messageDialog.setVisible(true);
@@ -422,73 +418,123 @@ public class ChatServerGUI extends JFrame {
             return;
         }
         
-        JDialog messageDialog = new JDialog(this, "Send Message to All Users", true);
-        messageDialog.setSize(400, 200);
-        messageDialog.setLocationRelativeTo(this);
-        
-        JPanel panel = new JPanel(new BorderLayout());
-        
-        JTextArea messageArea = new JTextArea(4, 30);
-        messageArea.setLineWrap(true);
-        messageArea.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(messageArea);
-        
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton sendBtn = new JButton("Send to All");
-        JButton cancelBtn = new JButton("Cancel");
-        
-        sendBtn.addActionListener(e -> {
-            String message = messageArea.getText().trim();
-            if (!message.isEmpty()) {
-                String formattedMessage = "SERVER ANNOUNCEMENT: " + message;
-                broadcast(formattedMessage);
-                logMessage("Announcement sent to all users: " + message);
-                logChatMessage("[SERVER ANNOUNCEMENT] " + message);
-                statusLabel.setText("Announcement sent to " + activeUsers.size() + " users");
+        String message = JOptionPane.showInputDialog(this, "Enter message for all users:");
+        if (message != null && !message.trim().isEmpty()) {
+            String serverMessage = "🔔 SERVER MESSAGE: " + message;
+            broadcastToAll(serverMessage);
+            logMessage("[SERVER -> ALL] " + message);
+            chatMonitorArea.append("[" + getCurrentTime() + "] [SERVER -> ALL] " + message + "\n");
+        }
+    }
+    
+    private void kickSelectedUser() {
+        int selectedRow = userTable.getSelectedRow();
+        if (selectedRow != -1) {
+            String username = (String) userTableModel.getValueAt(selectedRow, 0);
+            
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Are you sure you want to kick user: " + username + "?", 
+                "Confirm Kick", JOptionPane.YES_NO_OPTION);
+                
+            if (confirm == JOptionPane.YES_OPTION) {
+                PrintWriter userWriter = userWriters.get(username);
+                if (userWriter != null) {
+                    userWriter.println("KICKED: You have been kicked by the server administrator.");
+                    userWriter.close();
+                    
+                    // Remove from collections
+                    synchronized (userWriters) {
+                        userWriters.remove(username);
+                    }
+                    synchronized (activeUsers) {
+                        activeUsers.remove(username);
+                    }
+                    
+                    logMessage("User kicked: " + username);
+                    chatMonitorArea.append("[" + getCurrentTime() + "] SYSTEM: " + username + " was kicked by admin\n");
+                    refreshUserTable();
+                    updateUserCount();
+                    broadcastUserList();
+                }
             }
-            messageDialog.dispose();
-        });
-        
-        cancelBtn.addActionListener(e -> messageDialog.dispose());
-        
-        buttonPanel.add(sendBtn);
-        buttonPanel.add(cancelBtn);
-        
-        panel.add(new JLabel("Message to all " + activeUsers.size() + " connected users:"), BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-        
-        messageDialog.add(panel);
-        messageDialog.setVisible(true);
+        }
+    }
+    
+    private void viewSelectedUserInfo() {
+        int selectedRow = userTable.getSelectedRow();
+        if (selectedRow != -1) {
+            String username = (String) userTableModel.getValueAt(selectedRow, 0);
+            String ip = (String) userTableModel.getValueAt(selectedRow, 1);
+            String connectionTime = (String) userTableModel.getValueAt(selectedRow, 2);
+            String status = (String) userTableModel.getValueAt(selectedRow, 3);
+            
+            String info = "Username: " + username + "\n" +
+                         "IP Address: " + ip + "\n" +
+                         "Connected Since: " + connectionTime + "\n" +
+                         "Status: " + status + "\n" +
+                         "Messages Sent: [Feature coming soon]";
+                         
+            JOptionPane.showMessageDialog(this, info, "User Information", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
     
     private void refreshUserTable() {
-        userTableModel.setRowCount(0);
-        synchronized (activeUsers) {
-            for (String username : activeUsers) {
-                userTableModel.addRow(new Object[]{
-                    username, 
-                    "127.0.0.1", // Placeholder - would need to track actual IPs
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")),
-                    "N/A" // Would need to track message counts
-                });
+        SwingUtilities.invokeLater(() -> {
+            userTableModel.setRowCount(0);
+            synchronized (activeUsers) {
+                for (String user : activeUsers) {
+                    userTableModel.addRow(new Object[]{user, "Connected", getCurrentTime(), "Online"});
+                }
+            }
+        });
+    }
+    
+    private void logMessage(String message) {
+        SwingUtilities.invokeLater(() -> {
+            String timestamp = getCurrentTime();
+            serverLogArea.append("[" + timestamp + "] " + message + "\n");
+            serverLogArea.setCaretPosition(serverLogArea.getDocument().getLength());
+        });
+    }
+    
+    private String getCurrentTime() {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+    }
+    
+    private void updateUserCount() {
+        SwingUtilities.invokeLater(() -> {
+            userCountLabel.setText("Connected Users: " + activeUsers.size());
+        });
+    }
+    
+    private void broadcastToAll(String message) {
+        synchronized (clientWriters) {
+            Iterator<PrintWriter> iterator = clientWriters.iterator();
+            while (iterator.hasNext()) {
+                PrintWriter writer = iterator.next();
+                try {
+                    writer.println(message);
+                    if (writer.checkError()) {
+                        iterator.remove();
+                    }
+                } catch (Exception e) {
+                    iterator.remove();
+                }
             }
         }
-        userCountLabel.setText("Connected Users: " + activeUsers.size());
     }
     
-    public static void logMessage(String message) {
-        if (instance != null && instance.serverLogArea != null) {
-            SwingUtilities.invokeLater(() -> {
-                String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                instance.serverLogArea.append("[" + timestamp + "] " + message + "\n");
-                instance.serverLogArea.setCaretPosition(instance.serverLogArea.getDocument().getLength());
-            });
+    private void broadcastUserList() {
+        String userList;
+        synchronized (activeUsers) {
+            userList = "USERS_ONLINE: " + String.join(", ", activeUsers);
         }
+        broadcastToAll(userList);
     }
     
-    public static void logChatMessage(String message) {
-        if (instance != null && instance.chatMonitorArea != null) {
+    // Static methods for ClientHandler access
+    public static void addMessage(String message) {
+        if (instance != null) {
             SwingUtilities.invokeLater(() -> {
                 String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
                 instance.chatMonitorArea.append("[" + timestamp + "] " + message + "\n");
@@ -498,50 +544,101 @@ public class ChatServerGUI extends JFrame {
         }
     }
     
-    private static void broadcast(String message) {
+    public static void addUser(String username, PrintWriter writer) {
+        synchronized (activeUsers) {
+            activeUsers.add(username);
+        }
+        synchronized (userWriters) {
+            userWriters.put(username, writer);
+        }
         synchronized (clientWriters) {
-            for (PrintWriter writer : new HashSet<>(clientWriters)) {
-                try {
-                    writer.println(message);
-                    writer.flush();
-                } catch (Exception e) {
-                    clientWriters.remove(writer);
-                }
-            }
+            clientWriters.add(writer);
+        }
+        
+        if (instance != null) {
+            instance.updateUserCount();
+            instance.broadcastUserList();
+            instance.refreshUserTable();
         }
     }
     
-    private static class ClientHandler extends Thread {
+    public static void removeUser(String username, PrintWriter writer) {
+        synchronized (activeUsers) {
+            activeUsers.remove(username);
+        }
+        synchronized (userWriters) {
+            userWriters.remove(username);
+        }
+        synchronized (clientWriters) {
+            clientWriters.remove(writer);
+        }
+        
+        if (instance != null) {
+            instance.updateUserCount();
+            instance.broadcastUserList();
+            instance.refreshUserTable();
+        }
+    }
+    
+    public static void broadcastMessage(String message) {
+        if (instance != null) {
+            instance.broadcastToAll(message);
+        }
+    }
+    
+    // ClientHandler class for handling individual client connections
+    class ClientHandler extends Thread {
         private Socket socket;
         private PrintWriter out;
         private BufferedReader in;
         private String username;
         private String clientIP;
-
-        public ClientHandler(Socket socket) { 
-            this.socket = socket; 
+        
+        public ClientHandler(Socket socket) {
+            this.socket = socket;
             this.clientIP = socket.getInetAddress().getHostAddress();
         }
-
+        
+        @Override
         public void run() {
             try {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
-
+                
                 // Protocol: LOGIN|user|pass OR REG|user|pass
                 while (true) {
                     String line = in.readLine();
-                    if (line == null) return;
+                    if (line == null) break;
+                    
                     String[] parts = line.split("\\|");
+                    if (parts.length != 3) continue;
+                    
                     String cmd = parts[0];
                     String user = parts[1];
                     String pass = parts[2];
-
+                    
                     if (cmd.equals("LOGIN")) {
                         if (DBManager.validateLogin(user, pass)) {
                             this.username = user;
                             out.println("AUTH_SUCCESS");
-                            logMessage("User authenticated: " + user + " from " + clientIP);
+                            
+                            // Add user to active lists
+                            addUser(username, out);
+                            
+                            logMessage("User logged in: " + user + " from " + clientIP);
+                            addMessage("SYSTEM: " + user + " has joined!");
+                            
+                            // Send chat history (last 5 messages)
+                            List<String> history = DBManager.getChatHistory();
+                            for (String historyMsg : history) {
+                                out.println(historyMsg);
+                            }
+                            
+                            // Send separator
+                            out.println("SYSTEM: ═══ You are now connected - Real-time messages start here ═══");
+                            
+                            // Handle messages
+                            handleMessages();
                             break;
                         } else { 
                             out.println("AUTH_FAIL"); 
@@ -551,99 +648,78 @@ public class ChatServerGUI extends JFrame {
                         if (DBManager.registerUser(user, pass)) {
                             out.println("REG_SUCCESS");
                             logMessage("New user registered: " + user + " from " + clientIP);
-                        } else { 
-                            out.println("REG_FAIL"); 
+                        } else {
+                            out.println("REG_FAIL");
                             logMessage("Failed registration attempt: " + user + " from " + clientIP);
                         }
                     }
                 }
-
-                synchronized (clientWriters) { 
-                    clientWriters.add(out);
-                    userWriters.put(username, out);
-                    activeUsers.add(username);
-                }
-
-                // Send limited history and separator
-                List<String> history = DBManager.getChatHistory();
-                for (String msg : history) { 
-                    out.println(msg); 
-                }
-                
-                // Add separator to distinguish history from real-time messages
-                out.println("SYSTEM: ═══ You are now connected - Real-time messages start here ═══");
-                
-                broadcast("SYSTEM: " + username + " has joined!");
-                logChatMessage("SYSTEM: " + username + " has joined!");
-                sendUserList();
-
-                String message;
-                while ((message = in.readLine()) != null) {
-                    if (message.startsWith("/pm ")) {
-                        handlePrivateMessage(message, username);
-                    } else if (message.equals("/users")) {
-                        sendUserList();
-                    } else if (message.equals("/time")) {
-                        out.println("SYSTEM: Current time: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                    } else {
-                        // Regular chat message - THIS IS THE KEY FIX
-                        DBManager.saveMessage(username, message);
-                        String fullMessage = username + ": " + message;
-                        broadcast(fullMessage);  // Broadcast to ALL clients
-                        logChatMessage(fullMessage);
-                    }
-                }
             } catch (IOException e) {
-                logMessage("Client disconnected: " + (username != null ? username : "Unknown") + " (" + clientIP + ")");
+                logMessage("Client handler error: " + e.getMessage());
             } finally {
-                if (out != null) {
-                    synchronized (clientWriters) { 
-                        clientWriters.remove(out);
-                        userWriters.remove(username);
-                        activeUsers.remove(username);
-                    }
-                }
-                if (username != null) {
-                    broadcast("SYSTEM: " + username + " has left.");
-                    logChatMessage("SYSTEM: " + username + " has left.");
-                    sendUserList();
-                }
-                try {
-                    socket.close();
-                } catch (IOException e) {}
+                cleanup();
             }
-        }
-
-        private void handlePrivateMessage(String message, String sender) {
-            String[] parts = message.split(" ", 3);
-            if (parts.length >= 3) {
-                String recipient = parts[1];
-                String msg = parts[2];
-                PrintWriter recipientWriter = userWriters.get(recipient);
-                if (recipientWriter != null) {
-                    recipientWriter.println("[PM from " + sender + "]: " + msg);
-                    out.println("[PM to " + recipient + "]: " + msg);
-                    logChatMessage("[PM] " + sender + " -> " + recipient + ": " + msg);
-                } else {
-                    out.println("SYSTEM: User '" + recipient + "' not found or offline.");
-                }
-            }
-        }
-
-        private void sendUserList() {
-            String userList = "USERS_ONLINE: " + String.join(", ", activeUsers);
-            broadcast(userList);
-        }
-    }
-
-    public static void main(String[] args) {
-        try { 
-            UIManager.setLookAndFeel(new FlatDarkLaf()); 
-        } catch (Exception e) {
-            System.err.println("Failed to set look and feel: " + e.getMessage());
         }
         
+        private void handleMessages() throws IOException {
+            String message;
+            while ((message = in.readLine()) != null) {
+                if (message.startsWith("/pm ")) {
+                    // Private message handling
+                    String[] parts = message.substring(4).split(" ", 2);
+                    if (parts.length == 2) {
+                        String targetUser = parts[0];
+                        String pmMessage = parts[1];
+                        
+                        PrintWriter targetWriter = userWriters.get(targetUser);
+                        if (targetWriter != null) {
+                            targetWriter.println("[PM from " + username + "]: " + pmMessage);
+                            out.println("[PM to " + targetUser + "]: " + pmMessage);
+                            addMessage("[PM] " + username + " -> " + targetUser + ": " + pmMessage);
+                        } else {
+                            out.println("SYSTEM: User " + targetUser + " is not online.");
+                        }
+                    }
+                } else if (message.equals("/users")) {
+                    // Send user list
+                    broadcastUserList();
+                } else if (message.equals("/time")) {
+                    // Send server time
+                    out.println("SYSTEM: Server time is " + getCurrentTime());
+                } else {
+                    // Regular message
+                    DBManager.saveMessage(username, message);
+                    String fullMessage = username + ": " + message;
+                    addMessage(fullMessage);
+                    broadcastMessage(fullMessage);
+                }
+            }
+        }
+        
+        private void cleanup() {
+            try {
+                if (username != null) {
+                    removeUser(username, out);
+                    addMessage("SYSTEM: " + username + " has left!");
+                    logMessage("User disconnected: " + username + " from " + clientIP);
+                }
+                
+                if (socket != null && !socket.isClosed()) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                logMessage("Error during cleanup: " + e.getMessage());
+            }
+        }
+    }
+    
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(new FlatDarkLaf());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             new ChatServerGUI().setVisible(true);
         });
     }
